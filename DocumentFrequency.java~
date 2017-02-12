@@ -1,0 +1,77 @@
+import java.util.*;
+import java.io.*;
+
+public class DocumentFrequency {
+  
+  public static void main(String[] args) {
+    String dir = args[0]; // name of directory with input files
+    HashMap<String, Integer> dfs;
+    dfs = extractDocumentFrequencies(dir, 40);
+    writeDocumentFrequencies(dfs, "freqs.txt");
+  }
+  
+  public static HashMap<String,Integer> extractDocumentFrequencies (String directory, int ndoc){
+    HashMap<String,Integer> documentFrequencies = new HashMap<String,Integer>();
+    for (int i = 0; i < ndoc; i++){
+      String filename = directory + (i+1) + ".txt";
+      HashSet<String> currentDoc = new HashSet<String>();
+      currentDoc = extractWordsFromDocument (filename);
+      for (String s : currentDoc){
+        if (documentFrequencies.containsKey(s) == false){
+          documentFrequencies.put(s, 1);
+        }
+        else if (documentFrequencies.containsKey(s) == true){
+          documentFrequencies.put(s, documentFrequencies.get(s)+1);
+        }
+      }
+    }
+    return documentFrequencies;
+  }
+  
+  public static HashSet<String> extractWordsFromDocument(String filename) {
+    HashSet<String> vocabulary = new HashSet<String>();
+    try{
+      BufferedReader in = new BufferedReader (new FileReader (filename));
+      Scanner text = new Scanner (in);
+      while (text.hasNext()) {
+        String s = text.next();
+        String s1 = normalize(s);
+          if (vocabulary.contains (s1) == false){
+            vocabulary.add(s1);
+         
+        }
+      }
+    }
+    catch (IOException x) {
+      System.err.println("There was a problem with " + filename + ".");
+    }
+    vocabulary.remove("");
+    return vocabulary;
+  }
+  
+  
+  public static void writeDocumentFrequencies(HashMap<String, Integer> dfs, String filename) {
+    List<String> list = new ArrayList<String>(dfs.keySet());
+    Collections.sort (list);
+    try{
+      PrintWriter out = new PrintWriter (new BufferedWriter (new FileWriter (filename)));
+      for (int i = 0; i < list.size(); i++){
+        String s = list.get(i);
+        out.println (s + " " + dfs.get(s));
+      }
+      out.close();
+    }
+    catch (IOException x) {
+      System.err.println("There was a problem with " + filename + ".");
+    }
+  }
+  
+  /*
+   * This method "normalizes" a word, stripping extra whitespace and punctuation.
+   * Do not modify.
+   */
+  public static String normalize(String word) {
+    return word.replaceAll("[^a-zA-Z ']", "").toLowerCase();
+  }
+  
+}
